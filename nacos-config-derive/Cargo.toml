@@ -1,0 +1,24 @@
+[package]
+name = "nacos-config-derive"
+version = "0.1.0"
+edition = "2021"
+keywords = ["nacos"]
+
+[lib]
+proc_macro = true
+
+[dependencies.syn]
+version = "1.0.82"
+features = ["full"]
+
+[dependencies.quote]
+version = "1.0.10"
+
+[dependencies.proc-macro-error]
+version = "1.0.4"
+
+[dependencies.proc-macro2]
+version = "1.0.32"
+
+[dependencies.heck]
+version = "0.3.3"

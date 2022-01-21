@@ -1,0 +1,7 @@
+server_addrs = ["127.0.0.1:8848"]
+ty = "PROPERTIES"
+username = "nacos"
+password = "nacos"
+auto_refreshed = true
+data_ids = ["sft"]
+group = "pay"

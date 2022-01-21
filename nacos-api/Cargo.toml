@@ -1,0 +1,17 @@
+[package]
+name = "nacos-api"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+anyhow = "1.0.44"
+derive_more = "0.99.16"
+itertools = { version = "0.10.1", features = ["use_std"] }
+lazy_static = "1.4.0"
+log = "0.4.14"
+pretty_env_logger = "0.4.0"
+reqwest = {version = "0.11.4", features = ["rustls", "json"]}
+serde = { version = "1.0.130", features = ["derive"] }
+serde_json = "1.0.68"
+thiserror = "1.0.29"
+tokio = { version = "1.11.0", features = ["full"] }

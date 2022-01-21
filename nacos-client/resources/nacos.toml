@@ -1,0 +1,4 @@
+server_addrs = ["127.0.0.1:8848"]
+ty = "json"
+auto_refreshed = "true"
+context_path = "/nacos"

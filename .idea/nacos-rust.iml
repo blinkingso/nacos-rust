@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/nacos-api/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nacos-client/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nacos-client/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nacos-common/examples" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nacos-common/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nacos-config-derive/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <excludeFolder url="file://$MODULE_DIR$/target" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

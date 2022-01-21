@@ -1,0 +1,9 @@
+[package]
+name = "nacos-rust"
+version = "0.1.0"
+edition = "2021"
+authors = ['yaphets andrew']
+description = "nacos config client in rust."
+
+[workspace]
+members = ["nacos-config-derive", "nacos-common", "nacos-api", "nacos-client"]
