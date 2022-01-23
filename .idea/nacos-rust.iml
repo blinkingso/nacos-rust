@@ -9,6 +9,7 @@
       <sourceFolder url="file://$MODULE_DIR$/nacos-common/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/nacos-config-derive/src" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/src" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/nacos-proto/src" isTestSource="false" />
       <excludeFolder url="file://$MODULE_DIR$/target" />
     </content>
     <orderEntry type="inheritedJdk" />

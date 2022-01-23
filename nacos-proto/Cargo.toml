@@ -1,0 +1,13 @@
+[package]
+name = "nacos-proto"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+tonic = {version = "0.6.2", features = ["tls"]}
+prost = "0.9.0"
+prost-types = "0.9.0"
+log = "0.4.14"
+[build-dependencies]
+prost-build = "0.9.0"
+tonic-build = {version = "0.6.0", features = ["prost"]}

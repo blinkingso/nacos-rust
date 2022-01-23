@@ -1,16 +1,19 @@
-use nacos_common::{error::{NacosResult, NacosError}, remote::request::RpcRequest};
 use local_ip_address::local_ip;
-use crate::grpc::grpc_proto::{Metadata, Payload};
+use nacos_common::remote::response::RpcResponse;
+use nacos_common::{
+    error::{NacosError, NacosResult},
+    remote::request::RpcRequest,
+};
+use nacos_proto::grpc::{Metadata, Payload};
 use serde::{Deserialize, Serialize};
 use std::any::type_name;
 use std::fmt::format;
 use std::net::{IpAddr, Ipv4Addr};
-use std::ops::{ DerefMut};
-use nacos_common::remote::response::RpcResponse;
+use std::ops::DerefMut;
 
 pub fn convert_request<T>(request: T) -> Payload
-    where
-        T: Serialize + DerefMut<Target = RpcRequest>,
+where
+    T: Serialize + DerefMut<Target = RpcRequest>,
 {
     let metadata = Metadata {
         r#type: get_type_name::<T>(),
@@ -37,8 +40,8 @@ fn convert<T: Serialize>(metadata: Metadata, value: &T) -> Payload {
 }
 
 pub fn parse_request<'de, T>(payload: &'de Payload) -> NacosResult<T>
-    where
-        T: Deserialize<'de> + DerefMut<Target = RpcRequest>,
+where
+    T: Deserialize<'de> + DerefMut<Target = RpcRequest>,
 {
     let _ = check_ty::<T>(payload)?;
     return if let Some(ref body) = payload.body {
@@ -50,21 +53,29 @@ pub fn parse_request<'de, T>(payload: &'de Payload) -> NacosResult<T>
         Ok(req)
     } else {
         Err(NacosError::msg("request data is empty"))
-    }
+    };
 }
 
-pub fn parse_response<'de, T>(payload: &'de Payload) -> NacosResult<T> where T: Deserialize<'de> + DerefMut<Target=RpcResponse>{
+pub fn parse_response<'de, T>(payload: &'de Payload) -> NacosResult<T>
+where
+    T: Deserialize<'de> + DerefMut<Target = RpcResponse>,
+{
     let _ = check_ty::<T>(payload)?;
     if let Some(ref body) = payload.body {
-        let obj:T = serde_json::from_slice::<T>(body.value.as_slice())?;
+        let obj: T = serde_json::from_slice::<T>(body.value.as_slice())?;
         Ok(obj)
     } else {
         return Err(NacosError::msg("payload body is empty"));
     }
 }
 
-fn check_ty<T>(payload: &Payload) ->NacosResult<()> {
-    let ty = payload.metadata.as_ref().ok_or(NacosError::msg("metadata is empty"))?.r#type.clone();
+fn check_ty<T>(payload: &Payload) -> NacosResult<()> {
+    let ty = payload
+        .metadata
+        .as_ref()
+        .ok_or(NacosError::msg("metadata is empty"))?
+        .r#type
+        .clone();
     let ty_ident = get_type_name::<T>();
     if ty_ident != ty {
         return Err(NacosError::msg(format!("Unknown payload type: {}", ty)));

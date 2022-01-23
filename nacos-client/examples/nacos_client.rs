@@ -1,4 +1,3 @@
-use futures_core::Stream;
 use nacos_common::grpc_client::GrpcClient;
 use nacos_common::remote::request::{
     ConnectionSetupRequest, HealthCheckRequest, RpcRequest, ServerCheckRequest,
@@ -13,7 +12,7 @@ use tonic::transport::Channel;
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     set_var("RUST_LOG", "debug");
-    env_logger::init();
+    pretty_env_logger::init();
     let mut req = RpcRequest::default();
     // req.set_request_id("".to_string());
     req.put_header("accessToken".to_string(), "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJuYWNvcyIsImV4cCI6MTY0MjE3Mzc2Nn0.xQccuBO50TTW2SXjdiGrBmtVw_fKu4c1NDr0-UBmuW8".to_string());

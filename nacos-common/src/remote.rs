@@ -209,6 +209,8 @@ pub mod request {
 pub mod response {
     use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
+    use std::ops::{Deref, DerefMut};
+
     const CODE_SUCCESS: u16 = 200;
     const CODE_FAIL: u16 = 500;
 
@@ -246,14 +248,6 @@ pub mod response {
         pub request_id: Option<String>,
     }
 
-    impl RpcResponse {
-        pub fn set_error_info(&mut self, error_code: u32, error_message: String) {
-            self.result_code = ResponseCode::FAIL.code;
-            self.error_code = error_code;
-            self.message = Some(error_message);
-        }
-    }
-
     #[derive(Debug, Serialize, Deserialize, Clone)]
     #[serde(rename_all = "camelCase")]
     pub struct ClientDetectionResponse {
@@ -280,11 +274,9 @@ pub mod response {
             let mut response = RpcResponse {
                 result_code: CODE_SUCCESS,
                 error_code,
-                message: None,
+                message: Some(msg),
                 request_id: None,
             };
-
-            response.set_error_info(error_code, msg);
             ErrorResponse { response }
         }
     }
