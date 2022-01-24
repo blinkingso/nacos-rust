@@ -11,7 +11,7 @@ use std::fmt::format;
 use std::net::{IpAddr, Ipv4Addr};
 use std::ops::DerefMut;
 
-pub fn convert_request<T>(request: T) -> Payload
+pub fn convert_request<T>(request: &T) -> Payload
 where
     T: Serialize + DerefMut<Target = RpcRequest>,
 {
@@ -23,7 +23,17 @@ where
         headers: request.headers.clone(),
     };
 
-    convert(metadata, &request)
+    convert(metadata, request)
+}
+
+pub fn convert_response<R: Serialize>(value: &R) ->Payload {
+    let json_string = serde_json::to_string(value).unwrap();
+    let metadata = Metadata {
+        r#type: get_type_name::<R>(),
+        client_ip: "".to_string(),
+        headers: Default::default(),
+    };
+    convert(metadata, value)
 }
 
 fn convert<T: Serialize>(metadata: Metadata, value: &T) -> Payload {

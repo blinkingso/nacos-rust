@@ -161,6 +161,15 @@ pub mod request {
         pub request: RpcRequest,
     }
 
+    impl ServerCheckRequest {
+        pub fn new() -> Self {
+            let request = RpcRequest::default();
+            ServerCheckRequest {
+                request
+            }
+        }
+    }
+
     #[derive(Debug, Serialize, Clone)]
     #[serde(rename_all = "camelCase")]
     pub struct ServerLoaderInfoRequest {

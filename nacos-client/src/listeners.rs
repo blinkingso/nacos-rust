@@ -96,6 +96,13 @@ pub trait Listener {
     fn receive_config_info(&self, config_info: Self::Incoming);
 }
 
+pub trait ConnectionEventListener {
+    /// notify when connected to server.
+    fn on_connected(&self);
+    /// notify when disconnected to server.
+    fn on_disconnect(&self);
+}
+
 #[cfg(test)]
 mod tests {
     use super::ListenerSet;
