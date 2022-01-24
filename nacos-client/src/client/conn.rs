@@ -19,8 +19,8 @@ use std::convert::TryFrom;
 use std::ops::DerefMut;
 use std::str::FromStr;
 use std::time::Duration;
-use tokio::sync::mpsc::{Receiver, Sender};
 use tokio::sync::mpsc::error::SendError;
+use tokio::sync::mpsc::{Receiver, Sender};
 use tonic::transport::{Channel, Uri};
 use tonic::{IntoRequest, Request, Response, Status, Streaming};
 #[derive(Debug, Clone)]
@@ -37,12 +37,11 @@ pub struct GrpcConnection {
     pub channel: Option<Channel>,
     // to observe channel stream.
     pub sender: Option<Sender<Request<Payload>>>,
-    // client to handle Request/request
+    // client to handle Request/config
     pub request_stub: Option<RequestClient<Channel>>,
 }
 
 impl GrpcConnection {
-
     /// create a [GrpcConnection] instance.
     pub fn new(server_info: ServerInfo) -> Self {
         GrpcConnection {
@@ -51,23 +50,45 @@ impl GrpcConnection {
             server_info,
             channel: None,
             sender: None,
-            request_stub: None
+            request_stub: None,
         }
     }
 
-    pub async fn send_request<Req>(&self, request: Req) -> NacosResult<()>  where Req: DerefMut<Target=RpcRequest> + Serialize{
+    pub async fn request_timeout<Req>(
+        &mut self,
+        request: Req,
+        timeout_millis: u64,
+    ) -> NacosResult<()>
+    where
+        Req: DerefMut<Target = RpcRequest> + Serialize,
+    {
+        let payload = convert_request::<Req>(&request);
+        let mut request = Request::new(payload);
+        request.set_timeout(Duration::from_millis(timeout_millis));
+        let resp = self.request_stub.as_mut().unwrap().request(request).await?;
+        log_response(&resp);
+        Ok(())
+    }
+
+    pub async fn send_request<Req>(&self, request: Req) -> NacosResult<()>
+    where
+        Req: DerefMut<Target = RpcRequest> + Serialize,
+    {
         let sender = self.sender.as_ref().unwrap();
         let payload = convert_request::<Req>(&request);
         let request = Request::new(payload);
         return if sender.send(request).await.is_ok() {
             Ok(())
         } else {
-            log::error!("send request error.");
-            Err(NacosError::msg("request send failed"))
-        }
+            log::error!("send config error.");
+            Err(NacosError::msg("config send failed"))
+        };
     }
 
-    pub async fn send_response<Resp>(&self, response: Resp) -> NacosResult<()> where Resp: DerefMut<Target=RpcResponse> + Serialize {
+    pub async fn send_response<Resp>(&self, response: Resp) -> NacosResult<()>
+    where
+        Resp: DerefMut<Target = RpcResponse> + Serialize,
+    {
         let sender = self.sender.as_ref().unwrap();
         let payload = convert_response::<Resp>(&response);
         let request = Request::new(payload);
@@ -76,10 +97,10 @@ impl GrpcConnection {
         } else {
             log::error!("send response error.");
             Err(NacosError::msg("response send failed"))
-        }
+        };
     }
 
-    /// A function to send request to the queue to handle `rpc` [RpcRequest]
+    /// A function to send config to the queue to handle `rpc` [RpcRequest]
     pub async fn send_request_with_timeout<Req>(
         &self,
         request: Req,
@@ -93,11 +114,11 @@ impl GrpcConnection {
         req.set_timeout(Duration::from_millis(timeout_millis));
         match self.sender.clone().unwrap().send(req).await {
             Ok(_) => {
-                log::info!("send rpc request to worker queue successfully.")
+                log::info!("send rpc config to worker queue successfully.")
             }
             Err(error) => {
-                log::error!("send rpc request error to the worker queue, {}", error);
-                return Err(NacosError::msg("send request failed."))
+                log::error!("send rpc config error to the worker queue, {}", error);
+                return Err(NacosError::msg("send config failed."));
             }
         }
         Ok(())

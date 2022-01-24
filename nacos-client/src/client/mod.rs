@@ -1,4 +1,4 @@
-pub mod grpc;
+pub mod cli;
 pub mod conn;
 pub mod handlers;
 pub mod service;

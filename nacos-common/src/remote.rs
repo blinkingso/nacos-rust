@@ -1,7 +1,7 @@
 use self::request::RpcRequest;
 use async_trait::async_trait;
-use std::ops::{DerefMut};
-use serde::{Serialize};
+use serde::Serialize;
+use std::ops::DerefMut;
 
 macro_rules! impl_deref_mut {
     ($target: ty, $target_ty: ty, $target_ident: ident) => {
@@ -61,12 +61,12 @@ pub mod request {
     use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
 
-    /// A mark trait to mark server request.
+    /// A mark trait to mark server config.
     pub trait ServerRequest {}
-    /// A marker trait to mark client request.
+    /// A marker trait to mark client config.
     pub trait ClientRequest {}
 
-    /// A internal request trait to mark  `internal` module.
+    /// A internal config trait to mark  `internal` module.
     pub trait InternalRequest {
         fn get_module(&self) -> String {
             String::from("internal")
@@ -142,7 +142,7 @@ pub mod request {
         pub request: RpcRequest,
         pub data_id: String,
         pub group: String,
-        pub tenant: Option<String>
+        pub tenant: Option<String>,
     }
 
     #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -164,9 +164,7 @@ pub mod request {
     impl ServerCheckRequest {
         pub fn new() -> Self {
             let request = RpcRequest::default();
-            ServerCheckRequest {
-                request
-            }
+            ServerCheckRequest { request }
         }
     }
 
@@ -186,6 +184,64 @@ pub mod request {
         pub reload_server: String,
     }
 
+    #[derive(Debug, Serialize, Clone)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ConfigListenContext {
+        pub group: String,
+        pub md5: Option<String>,
+        pub data_id: String,
+        pub tenant: Option<String>,
+    }
+
+    impl ConfigListenContext {
+        pub fn new(
+            group: String,
+            md5: Option<String>,
+            data_id: String,
+            tenant: Option<String>,
+        ) -> Self {
+            ConfigListenContext {
+                group,
+                md5,
+                data_id,
+                tenant,
+            }
+        }
+    }
+
+    #[derive(Debug, Serialize, Clone)]
+    #[serde(rename_all = "camelCase")]
+    pub struct ConfigBatchListenRequest {
+        #[serde(flatten)]
+        pub request: RpcRequest,
+        pub listen: bool,
+        pub config_listen_contexts: Vec<ConfigListenContext>,
+    }
+
+    impl ConfigBatchListenRequest {
+        pub fn new(
+            request: RpcRequest,
+            listen: bool,
+            config_listen_contexts: Vec<ConfigListenContext>,
+        ) -> Self {
+            ConfigBatchListenRequest {
+                request,
+                listen,
+                config_listen_contexts,
+            }
+        }
+    }
+
+    impl Default for ConfigBatchListenRequest {
+        fn default() -> Self {
+            ConfigBatchListenRequest {
+                request: Default::default(),
+                listen: true,
+                config_listen_contexts: vec![],
+            }
+        }
+    }
+
     impl Default for RpcRequest {
         fn default() -> Self {
             RpcRequest {
@@ -200,6 +256,7 @@ pub mod request {
         HealthCheckRequest,
         ConnectionSetupRequest,
         ConfigChangeNotifyRequest,
+        ConfigBatchListenRequest,
     );
 
     impl_internal_request!(
@@ -210,8 +267,14 @@ pub mod request {
         HealthCheckRequest,
         ConnectionSetupRequest,
     );
-    impl_server_request!(ConnectResetRequest, ClientDetectionRequest, ConfigChangeNotifyRequest);
-    impl ConfigRequest for ConfigChangeNotifyRequest{}
+
+    impl_server_request!(
+        ConnectResetRequest,
+        ClientDetectionRequest,
+        ConfigChangeNotifyRequest
+    );
+    impl ConfigRequest for ConfigBatchListenRequest {}
+    impl ConfigRequest for ConfigChangeNotifyRequest {}
 }
 
 /// structs to handle communication from server to client.

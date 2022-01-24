@@ -26,7 +26,7 @@ where
     convert(metadata, request)
 }
 
-pub fn convert_response<R: Serialize>(value: &R) ->Payload {
+pub fn convert_response<R: Serialize>(value: &R) -> Payload {
     let json_string = serde_json::to_string(value).unwrap();
     let metadata = Metadata {
         r#type: get_type_name::<R>(),
@@ -62,7 +62,7 @@ where
         }
         Ok(req)
     } else {
-        Err(NacosError::msg("request data is empty"))
+        Err(NacosError::msg("config data is empty"))
     };
 }
 

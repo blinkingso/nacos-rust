@@ -1,7 +1,5 @@
 /// A module to process client-side notifications
-pub mod client {
-
-}
+pub mod client {}
 /// A module to process notification from server-side
 pub mod server {
     use nacos_common::error::NacosResult;
@@ -10,7 +8,7 @@ pub mod server {
     pub trait ServerRequestHandler {
         /// ServerRequestHandler type to process.
         fn ty(&self) -> String;
-        /// A function to process the request from server side
+        /// A function to process the config from server side
         async fn request_reply(&self, request: String) -> NacosResult<String>;
     }
 }

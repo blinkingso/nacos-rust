@@ -90,7 +90,7 @@ pub mod client {
                 }
             }
 
-            // try to request
+            // try to config
             let resp = client.execute(request).await?;
             todo!()
         }

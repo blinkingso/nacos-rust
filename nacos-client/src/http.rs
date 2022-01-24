@@ -1,5 +1,5 @@
-use nacos_common::error::{NacosError, NacosResult};
 use log::{debug, error};
+use nacos_common::error::{NacosError, NacosResult};
 use reqwest::ClientBuilder;
 use std::time::Duration;
 pub async fn post_form<'a>(
@@ -15,7 +15,7 @@ pub async fn post_form<'a>(
         .gzip(true)
         .build()
         .unwrap();
-    debug!("request url : {}", &url);
+    debug!("config url : {}", &url);
     let response = client.post(&url).query(&params).form(&body).send().await;
     match response {
         Ok(resp) => {
@@ -24,7 +24,7 @@ pub async fn post_form<'a>(
                 Ok(resp.text_with_charset("UTF-8").await?)
             } else {
                 Err(NacosError::msg(format!(
-                    "request to {} error for: {}",
+                    "config to {} error for: {}",
                     &url,
                     code.canonical_reason().unwrap_or("unknown error.")
                 )))
