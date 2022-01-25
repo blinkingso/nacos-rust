@@ -7,7 +7,6 @@ use nacos_common::{
 use nacos_proto::grpc::{Metadata, Payload};
 use serde::{Deserialize, Serialize};
 use std::any::type_name;
-use std::fmt::format;
 use std::net::{IpAddr, Ipv4Addr};
 use std::ops::DerefMut;
 

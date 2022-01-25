@@ -1,4 +1,3 @@
-use crate::config::props::NacosConfigProperties;
 use nacos_common::error::NacosResult;
 use serde::Deserialize;
 use toml::{Config, Environment, File};

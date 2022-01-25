@@ -281,7 +281,6 @@ pub mod request {
 pub mod response {
     use serde::{Deserialize, Serialize};
     use std::collections::HashMap;
-    use std::ops::{Deref, DerefMut};
 
     const CODE_SUCCESS: u16 = 200;
     const CODE_FAIL: u16 = 500;
@@ -343,7 +342,7 @@ pub mod response {
 
     impl ErrorResponse {
         pub fn build(error_code: u32, msg: String) -> ErrorResponse {
-            let mut response = RpcResponse {
+            let response = RpcResponse {
                 result_code: CODE_SUCCESS,
                 error_code,
                 message: Some(msg),

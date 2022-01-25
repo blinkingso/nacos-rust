@@ -1,6 +1,5 @@
-use std::collections::HashMap;
 use std::convert::TryFrom;
-use std::fmt::{format, Display, Formatter};
+use std::fmt::{Display, Formatter};
 
 use nacos_common::error::{NacosError, NacosResult};
 

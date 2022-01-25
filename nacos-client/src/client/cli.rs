@@ -3,8 +3,6 @@ use crate::client::conn::{GrpcConnection, ServerInfo};
 use crate::client::handlers::server::ServerRequestHandler;
 use crate::grpc::util::{convert_request, parse_response};
 use crate::listeners::ConnectionEventListener;
-use async_stream::stream;
-use futures_util::StreamExt;
 use nacos_common::api::ability::ClientAbilities;
 use nacos_common::api::{create_config_labels, get_env};
 use nacos_common::error::{NacosError, NacosResult};
@@ -16,13 +14,10 @@ use nacos_proto::grpc::Payload;
 use nacos_proto::log_payload;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use std::num::ParseIntError;
-use std::sync::Arc;
-use std::time::{Duration, Instant};
-use tokio::sync::mpsc::Sender;
-use tokio::time::{interval, timeout};
+use std::time::Duration;
+use tokio::sync::mpsc::{self, Sender};
 use tonic::transport::{Channel, Uri};
-use tonic::{Request, Response, Status, Streaming};
+use tonic::Request;
 
 const KEEP_ALIVE_TIME: u64 = 5000;
 
@@ -51,90 +46,56 @@ impl GrpcClient {
         // bind bi config stream
         let mut grpc_conn = GrpcConnection::new(server_info);
         grpc_conn.connection_id = Some(connection_id);
-        let bi_request_stream_stub = bind_request_stream(&channel).await?;
+        let bi_request_stream_stub = self.bind_request_stream(&channel).await?;
         grpc_conn.sender = Some(bi_request_stream_stub);
         grpc_conn.channel = Some((&channel).clone());
         grpc_conn.request_stub = Some(RequestClient::new(channel.clone()));
-        // send a setup config.
-        // let connection_setup_request = ConnectionSetupRequest {
-        //     config: Default::default(),
-        //     client_version: "Nacos-Rust-Sdk.0.1.0".to_string(),
-        //     abilities: self.client_abilities.clone(),
-        //     tenant: self.tenant.as_ref().unwrap_or(&"".to_string()).to_string(),
-        //     labels: create_config_labels(),
-        // };
-        // grpc_conn.send_request(connection_setup_request).await?;
-        let _ = register_connection_setup_stream(&channel).await;
-        Ok(grpc_conn)
-    }
-}
-
-async fn register_connection_setup_stream(channel: &Channel) -> NacosResult<()> {
-    let mut bi = BiRequestStreamClient::new(channel.clone());
-    // send a setup config.
-    let stream = stream! {
         let connection_setup_request = ConnectionSetupRequest {
             request: Default::default(),
-            client_version: "Nacos-Rust-Sdk.0.1.0".to_string(),
-            abilities: ClientAbilities::default(),
-            tenant: "".to_string(),
+            client_version: "Nacos-Rust-Sdk-0.1.0".to_string(),
+            abilities: self.client_abilities.clone(),
+            tenant: self.tenant.as_ref().unwrap_or(&"".to_string()).to_string(),
             labels: create_config_labels(),
         };
-        let payload = convert_request::<ConnectionSetupRequest>(&connection_setup_request);
-        yield payload;
-    };
-    let response_stream = bi.request_bi_stream(Request::new(stream)).await?;
-    let mut streaming = response_stream.into_inner();
-    tokio::spawn(async move {
-        while let Ok(Some(payload)) = streaming.message().await {
-            log_payload(&payload);
-            // send response to server
-            let value = payload.body.as_ref().unwrap();
-            let metadata = payload.metadata.as_ref().unwrap();
-            let bytes = &value.value;
-            let ty = metadata.r#type.as_str();
-            log::warn!("type: {}", ty);
-            log::warn!("value: {}", String::from_utf8_lossy(bytes));
-            // todo send response to server.
-        }
-    });
-    Ok(())
-}
+        grpc_conn.send_request(connection_setup_request).await?;
+        Ok(grpc_conn)
+    }
 
-async fn bind_request_stream(channel: &Channel) -> NacosResult<Sender<Request<Payload>>> {
-    let mut bi = BiRequestStreamClient::new(channel.clone());
-    let (sender, mut receiver) = tokio::sync::mpsc::channel::<Request<Payload>>(1024);
-    tokio::spawn(async move {
-        while let Some(payload) = receiver.recv().await {
-            let mut bi = bi.clone();
-            match bi
-                .request_bi_stream(futures_util::stream::iter(vec![payload.into_inner()]))
-                .await
-            {
-                Ok(response) => {
-                    // async process stream.
-                    let mut stream = response.into_inner();
-                    tokio::spawn(async move {
-                        while let Some(Ok(payload)) = stream.next().await {
-                            log_payload(&payload);
-                            // send response to server
-                            let value = payload.body.as_ref().unwrap();
-                            let metadata = payload.metadata.as_ref().unwrap();
-                            let bytes = &value.value;
-                            let ty = metadata.r#type.as_str();
-                            log::warn!("type: {}", ty);
-                            log::warn!("value: {}", String::from_utf8_lossy(bytes));
-                            // todo send response to server.
-                        }
-                    });
-                }
-                Err(error) => {
-                    warn!("failed to bi.request_stream, {:?}", error);
-                }
+    async fn bind_request_stream(&self, channel: &Channel) -> NacosResult<Sender<Payload>> {
+        let mut bi = BiRequestStreamClient::new(channel.clone());
+        let (sender, mut receiver) = mpsc::channel::<Payload>(1024);
+        // send a setup config.
+        let outbound = async_stream::stream! {
+            while let Some(payload) = receiver.recv().await {
+                log_payload(&payload);
+                yield payload;
+            }
+        };
+        let mut request = Request::new(outbound);
+        request.set_timeout(Duration::from_secs(15000));
+        match bi.request_bi_stream(request).await {
+            Ok(response_stream) => {
+                let mut streaming = response_stream.into_inner();
+                tokio::spawn(async move {
+                    while let Ok(Some(payload)) = streaming.message().await {
+                        log_payload(&payload);
+                        // send response to server
+                        let value = payload.body.as_ref().unwrap();
+                        let metadata = payload.metadata.as_ref().unwrap();
+                        let bytes = &value.value;
+                        let ty = metadata.r#type.as_str();
+                        log::warn!("type: {}", ty);
+                        log::warn!("value: {}", String::from_utf8_lossy(bytes));
+                        // todo send response to server.
+                    }
+                });
+            }
+            Err(error) => {
+                error!("bi stream request error : {}", error);
             }
         }
-    });
-    Ok(sender)
+        Ok(sender)
+    }
 }
 
 async fn server_check(

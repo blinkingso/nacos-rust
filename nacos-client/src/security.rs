@@ -1,9 +1,8 @@
-use nacos_common::error::{NacosError, NacosResult};
 use chrono::Utc;
 use log::{debug, info, warn};
+use nacos_common::error::{NacosError, NacosResult};
 use serde::Deserialize;
 use std::sync::{Arc, Mutex};
-use std::thread::spawn;
 
 pub const LOGIN_URL: &'static str = "/v1/auth/users/login";
 pub const HTTP_PREFIX: &'static str = "http";
@@ -62,7 +61,7 @@ pub async fn login(
         warn!("no authentication message found, please check to auth.");
         return Ok(SecurityProxy::default());
     };
-    let mut url = format!(
+    let url = format!(
         "{}://{}{}{}",
         HTTP_PREFIX, server_url, context_path, LOGIN_URL
     );

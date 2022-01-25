@@ -1,8 +1,5 @@
 use crate::Properties;
 use serde::Deserialize;
-use std::any::Any;
-use std::boxed::Box;
-use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 pub struct NacosPropertySource {

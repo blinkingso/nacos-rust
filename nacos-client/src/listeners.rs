@@ -1,5 +1,4 @@
 use crate::common::GroupKey;
-use crate::Properties;
 use std::boxed::Box;
 use std::collections::HashMap;
 use std::hash::Hash;
@@ -150,10 +149,8 @@ mod tests {
 
 pub mod config {
     use super::{ConfigChangeItem, PropertyChangeType};
-    use crate::client::service::ConfigService;
     use nacos_common::error::{NacosError, NacosResult};
     use std::collections::HashMap;
-    use std::io::BufReader;
 
     pub fn parse_change_data(
         last_content: &str,
