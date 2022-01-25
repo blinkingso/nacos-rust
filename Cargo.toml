@@ -6,4 +6,4 @@ authors = ['yaphets andrew']
 description = "nacos config client in rust."
 
 [workspace]
-members = ["nacos-config-derive", "nacos-common", "nacos-api", "nacos-client", "nacos-proto"]
+members = ["nacos-config-derive", "nacos-common", "nacos-client", "nacos-proto"]

@@ -32,6 +32,9 @@ pub struct GrpcClient {
 }
 
 impl GrpcClient {
+    pub fn shutdown(self) {
+        info!("GrpcClient shutdown successfully.");
+    }
     pub async fn connect_to_server(&self, server_info: ServerInfo) -> NacosResult<GrpcConnection> {
         let channel = create_new_channel(&server_info).await?;
         let stub = RequestClient::new(channel.clone());
