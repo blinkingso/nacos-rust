@@ -2,7 +2,7 @@
 pub mod client {}
 /// A module to process notification from server-side
 pub mod server {
-    use nacos_common::error::NacosResult;
+    use nacos_core::error::NacosResult;
 
     #[tonic::async_trait]
     pub trait ServerRequestHandler {

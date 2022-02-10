@@ -3,7 +3,7 @@ name = "nacos-rust"
 version = "0.1.0"
 edition = "2021"
 authors = ['yaphets andrew']
-description = "nacos config client in rust."
+description = "nacos config in rust."
 
 [workspace]
-members = ["nacos-config-derive", "nacos-common", "nacos-client", "nacos-proto"]
+members = ["nacos-core", "nacos-config-derive", "nacos-common", "nacos-client", "nacos-proto", "nacos-api"]

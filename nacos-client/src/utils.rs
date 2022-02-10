@@ -1,4 +1,4 @@
-use nacos_common::error::NacosResult;
+use nacos_core::error::NacosResult;
 use serde::Deserialize;
 use toml::{Config, Environment, File};
 
@@ -14,14 +14,4 @@ pub fn read_toml_from_resources<'de, T: Deserialize<'de>>(prefix: &str) -> Nacos
     // from environment
     s.merge(Environment::with_prefix(prefix))?;
     Ok(s.try_into()?)
-}
-
-#[test]
-fn test_read() {
-    let a = read_toml_from_resources::<NacosConfigProperties>("nacos");
-    if let Ok(ref p) = a {
-        println!("{:?}", p);
-    } else {
-        eprintln!("error: {:?}", a.unwrap_err());
-    }
 }

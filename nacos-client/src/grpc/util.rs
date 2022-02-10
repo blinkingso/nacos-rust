@@ -1,9 +1,6 @@
 use local_ip_address::local_ip;
-use nacos_common::remote::response::RpcResponse;
-use nacos_common::{
-    error::{NacosError, NacosResult},
-    remote::request::RpcRequest,
-};
+use nacos_api::api::remote::{request::RpcRequest, response::RpcResponse};
+use nacos_core::error::{NacosError, NacosResult};
 use nacos_proto::grpc::{Metadata, Payload};
 use serde::{Deserialize, Serialize};
 use std::any::type_name;

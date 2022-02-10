@@ -3,11 +3,11 @@ use crate::client::conn::{GrpcConnection, ServerInfo};
 use crate::client::handlers::server::ServerRequestHandler;
 use crate::grpc::util::{convert_request, parse_response};
 use crate::listeners::ConnectionEventListener;
-use nacos_common::api::ability::ClientAbilities;
-use nacos_common::api::{create_config_labels, get_env};
-use nacos_common::error::{NacosError, NacosResult};
-use nacos_common::remote::request::{ConnectionSetupRequest, ServerCheckRequest};
-use nacos_common::remote::response::ServerCheckResponse;
+use nacos_api::api::ability::env::{create_config_labels, get_env};
+use nacos_api::api::ability::ClientAbilities;
+use nacos_api::api::remote::request::{ConnectionSetupRequest, ServerCheckRequest};
+use nacos_api::api::remote::response::ServerCheckResponse;
+use nacos_core::error::{NacosError, NacosResult};
 use nacos_proto::grpc::bi_request_stream_client::BiRequestStreamClient;
 use nacos_proto::grpc::request_client::RequestClient;
 use nacos_proto::grpc::Payload;
@@ -54,7 +54,7 @@ impl GrpcClient {
         grpc_conn.channel = Some((&channel).clone());
         grpc_conn.request_stub = Some(RequestClient::new(channel.clone()));
         let connection_setup_request = ConnectionSetupRequest {
-            request: Default::default(),
+            inner: Default::default(),
             client_version: "Nacos-Rust-Sdk-0.1.0".to_string(),
             abilities: self.client_abilities.clone(),
             tenant: self.tenant.as_ref().unwrap_or(&"".to_string()).to_string(),

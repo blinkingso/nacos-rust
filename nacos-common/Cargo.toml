@@ -3,9 +3,27 @@ name = "nacos-common"
 version = "0.1.0"
 edition = "2021"
 
+[dependencies.nacos-api]
+path = "../nacos-api"
+version = "0.1.0"
+
+[dependencies.nacos-proto]
+path = "../nacos-proto"
+version = "0.1.0"
+
+[dependencies.nacos-core]
+path = "../nacos-core"
+version = "0.1.0"
+
 [dependencies]
-async-trait = "0.1.51"
-serde = {version = "1.0.130", features = ["derive", "std"]}
-serde_json = "1.0.72"
-log = "0.4.14"
 anyhow = "1.0.52"
+tonic = {version = "0.6.2", features = ["tls"]}
+prost = "0.9.0"
+prost-types = "0.9.0"
+tokio = {version = "1.15.0", features = ["rt", "net"]}
+local-ip-address = "0.4.4"
+serde_json = "1.0.75"
+serde = {version = "1.0.133", features = ["derive"]}
+async-trait = "0.1.52"
+log = "0.4.14"
+chrono = "0.4.19"

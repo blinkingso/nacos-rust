@@ -1,6 +1,6 @@
 use chrono::Utc;
 use log::{debug, info, warn};
-use nacos_common::error::{NacosError, NacosResult};
+use nacos_core::error::{NacosError, NacosResult};
 use serde::Deserialize;
 use std::sync::{Arc, Mutex};
 

@@ -1,13 +1,14 @@
+use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::fmt::{Display, Formatter};
 
-use nacos_common::error::{NacosError, NacosResult};
+use nacos_core::error::{NacosError, NacosResult};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct GroupKey {
     group_id: String,
     data_id: String,
-    tanant: Option<String>,
+    tenant: Option<String>,
 }
 
 fn require_nonnull(name: &str, value: &str) -> NacosResult<()> {
@@ -21,27 +22,27 @@ fn require_nonnull(name: &str, value: &str) -> NacosResult<()> {
 }
 
 impl GroupKey {
-    /// A function to create a GroupKey without tanant.
-    pub fn new_without_tanant(data_id: &str, group_id: &str) -> NacosResult<Self> {
+    /// A function to create a GroupKey without tenant.
+    pub fn new_without_tenant(data_id: &str, group_id: &str) -> NacosResult<Self> {
         require_nonnull("data_id", data_id)?;
         require_nonnull("group_id", group_id)?;
 
         Ok(GroupKey {
             group_id: group_id.to_string(),
             data_id: data_id.to_string(),
-            tanant: None,
+            tenant: None,
         })
     }
 
     /// A function to create a GroupKey.
-    pub fn new(data_id: &str, group_id: &str, tanant: &str) -> NacosResult<Self> {
+    pub fn new(data_id: &str, group_id: &str, tenant: &str) -> NacosResult<Self> {
         require_nonnull("data_id", data_id)?;
         require_nonnull("group_id", group_id)?;
-        require_nonnull("tanant", tanant)?;
+        require_nonnull("tenant", tenant)?;
         Ok(GroupKey {
             group_id: group_id.to_string(),
             data_id: data_id.to_string(),
-            tanant: Some(tanant.to_string()),
+            tenant: Some(tenant.to_string()),
         })
     }
 }
@@ -49,8 +50,8 @@ impl GroupKey {
 impl Display for GroupKey {
     fn fmt(&self, f: &mut Formatter<'_>) -> std::fmt::Result {
         let mut result = format!("{}+{}", self.data_id, self.group_id);
-        if self.tanant.is_some() {
-            result = format!("{}+{}", result, self.tanant.as_ref().unwrap());
+        if self.tenant.is_some() {
+            result = format!("{}+{}", result, self.tenant.as_ref().unwrap());
         }
         write!(f, "{}", result)
     }
@@ -71,7 +72,7 @@ impl TryFrom<String> for GroupKey {
             return Err(NacosError::msg("group parse error"));
         };
 
-        let tanant = if let Some(t) = split.next() {
+        let tenant = if let Some(t) = split.next() {
             Some(t.to_string())
         } else {
             None
@@ -80,7 +81,7 @@ impl TryFrom<String> for GroupKey {
         Ok(GroupKey {
             data_id: data_id.to_string(),
             group_id: group_id.to_string(),
-            tanant,
+            tenant,
         })
     }
 }

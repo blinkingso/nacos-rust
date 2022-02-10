@@ -149,7 +149,7 @@ mod tests {
 
 pub mod config {
     use super::{ConfigChangeItem, PropertyChangeType};
-    use nacos_common::error::{NacosError, NacosResult};
+    use nacos_core::error::{NacosError, NacosResult};
     use std::collections::HashMap;
 
     pub fn parse_change_data(

@@ -1,5 +1,5 @@
 use log::{debug, error};
-use nacos_common::error::{NacosError, NacosResult};
+use nacos_core::error::{NacosError, NacosResult};
 use reqwest::ClientBuilder;
 use std::time::Duration;
 pub async fn post_form<'a>(

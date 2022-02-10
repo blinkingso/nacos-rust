@@ -1,3 +1,11 @@
+pub mod remote {
+    pub const LABEL_SOURCE: &'static str = "source";
+    pub const LABEL_SOURCE_SDK: &'static str = "sdk";
+    pub const LABEL_SOURCE_CLUSTER: &'static str = "cluster";
+    pub const LABEL_MODULE: &'static str = "module";
+    pub const LABEL_MODULE_CONFIG: &'static str = "config";
+    pub const LABEL_MODULE_NAMING: &'static str = "naming";
+}
 pub mod names {
     pub const NAMESPACE: &'static str = "namespace";
     pub const SERVER_ADDR: &'static str = "server_addr";
